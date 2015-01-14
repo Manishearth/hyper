@@ -6,7 +6,7 @@ use url::Url;
 use method::{self, Method};
 use header::Headers;
 use header::common::{self, Host};
-use net::{NetworkStream, NetworkConnector, HttpConnector, Fresh, Streaming};
+use net::{NetworkStream, NetworkConnector, HttpConnector, Fresh, Streaming, NoSslVerify};
 use http::{HttpWriter, LINE_ENDING};
 use http::HttpWriter::{ThroughWriter, ChunkedWriter, SizedWriter, EmptyWriter};
 use version;
@@ -40,7 +40,7 @@ impl<W> Request<W> {
 impl Request<Fresh> {
     /// Create a new client request.
     pub fn new(method: method::Method, url: Url) -> HttpResult<Request<Fresh>> {
-        let mut conn = HttpConnector(None);
+        let mut conn = HttpConnector::<NoSslVerify>(None);
         Request::with_connector(method, url, &mut conn)
     }
 

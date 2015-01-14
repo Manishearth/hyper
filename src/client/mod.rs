@@ -25,10 +25,13 @@ use std::iter::Extend;
 use url::UrlParser;
 use url::ParseError as UrlError;
 
+
+use openssl::ssl::SslContext;
+
 use header::{Headers, Header, HeaderFormat};
 use header::common::{ContentLength, Location};
 use method::Method;
-use net::{NetworkConnector, HttpConnector, ContextVerifier};
+use net::{NetworkConnector, HttpConnector};
 use status::StatusClass::Redirection;
 use {Url, Port, HttpResult};
 use HttpError::HttpUriError;
@@ -47,15 +50,15 @@ pub struct Client<C> {
     redirect_policy: RedirectPolicy,
 }
 
-impl Client<HttpConnector> {
+impl<V: FnMut(&mut SslContext) -> ()> Client<HttpConnector<V>> {
 
     /// Create a new Client.
-    pub fn new() -> Client<HttpConnector> {
+    pub fn new() -> Client<HttpConnector<V>> {
         Client::with_connector(HttpConnector(None))
     }
 
     /// Set the SSL verifier callback for use with OpenSSL.
-    pub fn set_ssl_verifier(&mut self, verifier: ContextVerifier) {
+    pub fn set_ssl_verifier(&mut self, verifier: V) {
         self.connector = HttpConnector(Some(verifier));
     }
 

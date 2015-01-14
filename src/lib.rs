@@ -1,4 +1,4 @@
-#![feature(slicing_syntax, box_syntax)]
+#![feature(slicing_syntax, box_syntax, unboxed_closures)]
 #![deny(missing_docs)]
 #![allow(unstable)]
 #![cfg_attr(test, deny(warnings))]

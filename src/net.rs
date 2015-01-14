@@ -309,12 +309,17 @@ impl NetworkStream for HttpStream {
 
 /// A connector that will produce HttpStreams.
 #[allow(missing_copy_implementations)]
-pub struct HttpConnector(pub Option<ContextVerifier>);
+pub struct HttpConnector<T = NoSslVerify>(Option<T>);
 
-/// A method that can set verification methods on an SSL context
-pub type ContextVerifier = for <'a> fn(&'a mut SslContext) -> ();
+/// A no-op verify callback
+pub struct NoSslVerify;
 
-impl NetworkConnector for HttpConnector {
+impl Fn(&mut SslContext) -> () for NoSslVerify {
+    #[inline(always)]
+    fn call(&self, _: (&mut SslContext)) {}
+}
+
+impl<T> NetworkConnector for HttpConnector<T> where T: FnMut(&mut SslContext) -> () {
     type Stream = HttpStream;
 
     fn connect(&mut self, host: &str, port: Port, scheme: &str) -> IoResult<HttpStream> {
